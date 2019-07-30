@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>1-dataBind</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    <style type="text/css">
+        [v-cloak] {
+            display: none;
+        }
+        .div1 {
+            width: 200px;
+            height: 200px;
+            border: 3px solid;
+        }
+        .bgc {
+            background-color: blue;
+        }
+        .borderR {
+            border-radius: 50%;
+        }
+        .div2 {
+            width: 200px;
+            height: 200px;
+            border: 1px solid;
+        }
+        .divBgc {
+            background-color: blue;
+        }
+        .hideH2 {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <fieldset>
+            <legend><h2>值绑定</h2></legend>
+            vue加载的数据是:{{msg}}
+            <p v-cloak>5+10的结果是:{{a+b}}</p>
+            <p>此人的性别是:{{isMan ?  "男" :　"女"}}</p>
+            <hr>
+            <p>{{value1}}</p>
+            <p v-text="value1"></p>
+            <p v-html="value1"></p>
+            <!--
+                v-text和v-html的区别
+                v-text会原样输出
+                v-html如果数据里有标签结构, 标签结构会被解析
+            -->
+            <p v-text="value2"></p>
+            <p v-html="value2"></p>
+            <p>{{value2}}</p>
+        </fieldset>
+        <fieldset>
+            <legend><h2>属性绑定</h2></legend>
+            <!--<img v-bind:src="imgUrl" :alt="imgAlt">-->
+            <!--<img :src="'http://img.zcool.cn/community/032bd3557a5abcd0000018c1b74486e.jpg'" alt="">-->
+            <hr>
+
+            <div class="div1" :class="{bgc:isAdd, borderR:isAdd}">class对象写法</div>
+
+            <div class="div1" :class="classArr">class数组写法</div>
+            <hr>
+
+            <p :style="{width:pWidth, height:'200px', background:'red'}">style对象写法</p>
+
+            <p :style="[{width:pWidth, height:'200px', background:'red'}, {borderRadius:'50%'}]">style数组写法</p>
+        </fieldset>
+        <fieldset>
+            <legend><h2>事件绑定</h2></legend>
+            <button v-on:click="btnClickNo">无参点击事件</button>
+            <button v-on:click="btnClick(1, 'abc', msg, $event)">有参点击事件</button>
+            <hr>
+            <div class="div2" v-on:click="changeColor" :style="divBgc"></div>
+
+            <div class="div2" v-on:click="isBgc = !isBgc" :class="{divBgc:isBgc}"></div>
+
+            <h2 :class="{hideH2: isHide}">这是h2标签</h2>
+            <button @click="isHide = !isHide">{{isHide ? "显示" :　"隐藏"}}</button>
+
+            <hr>
+            <div class="parent" @click="parentClick">
+                <button @click.stop.once="childClick">子按钮</button>
+                <a href="http://www.baidu.com" @click.prevent.stop>百度首页</a>
+            </div>
+
+            <input type="text" @keydown.left.right.up.down="downAction">
+
+            <hr>
+            <!--双向数据绑定-->
+            <input type="text" v-model="inputV">
+            <p>{{inputV}}</p>
+
+            <!--自定义双向数据绑定效果-->
+        </fieldset>
+    </div>
+    <!--
+        Vue是一个MVVM的JavaScript框架; ViewModel负责逻辑的实现, 把Model里的数据传递给View, 实现数据层与视图层的解耦.
+    -->
+    <!--
+        数据绑定知识点:
+        1.  数据绑定
+            1.1 值绑定
+                1.1.1 {{}} 插值表达式, 大括号里填表达式, 不能填语句
+                1.1.2 使用v-text或者v-html指令 进行数据的绑定
+            vue的文本闪烁问题
+            当我们使用外部引入vue.js文件时,  如果vue.js文件没有及时加载, 导致系统无法识别vue语法, 书写的vue语法代码会原样输出.
+            解决办法:
+            1. 在head里引入vue.js让其先加载, 可以解决闪烁问题, 但不能解决断网问题
+            2. 使用v-cloak指令, 从根本上解决文本闪烁问题
+               当vue.js没有被加载时, 系统仅仅把v-cloak当做普通的自定义属性, 我们可以将添加了v-cloak属性的元素隐藏, 一旦vue.js被加载, v-cloak就会被vue识别, vue会将添加了该属性的所有标签的v-cloak属性去掉.
+
+            1.2 属性绑定
+                1.2.1 语法:
+                    v-bind:属性名="属性值"
+                    简写:
+                    :属性名="属性值"
+                1.2.2 动态绑定元素样式
+                    动态绑定class属性修改元素样式
+                        语法:
+                        :class="对象/数组"
+                    动态绑定style属性修改元素样式
+                        语法:
+                        :style="对象/数组"
+            1.3 事件绑定
+                语法:
+                    v-on:事件名="表达式"
+                简写:
+                    @事件名="表达式"
+                vue事件的修饰符
+                    1. 普通事件
+                        阻止事件冒泡 stop
+                        阻止默认事件执行 prevent
+                        一次性事件 once
+
+                     2. 键盘事件
+                        enter, tab, left, right, up, down, meta, ctrl, shift, alt, delete, esc
+
+               4. 双向数据绑定
+                  v-model="绑定的值"
+    -->
+    <script type="text/javascript">
+        let app = new Vue({
+            //el 指定vue实例的作用域
+            el:"#app",
+            // vue实例的数据源
+            data:{
+                msg:"你好, vue!",
+                a:5,
+                b:10,
+                isMan:true,
+                value1:"今天周三",
+                value2:"<a href='http://www.baidu.com'>百度首页</a>",
+                imgUrl:"http://img.zcool.cn/community/032bd3557a5abcd0000018c1b74486e.jpg",
+                imgAlt:"vue-Logo",
+                isAdd:true,
+                classArr:['bgc', 'borderR'],
+                pWidth:"500px",
+                divBgc:{backgroundColor:"transparent"},
+                isBgc:false,
+                isHide:false,
+                inputV:"123"
+            },
+            // 触发函数
+            methods: {
+                btnClickNo(e) {
+                    // alert("按钮被点击!");
+                    console.log(e.target);
+                },
+                btnClick(n1, n2, n3, e) {
+                    // console.log(n1, n2, n3);
+                    // console.log(this);
+                    // this.msg = "你好, react";
+                    console.log(e.target);
+                },
+                // vue的事件函数里, 如果需要获取事件对象, 可以通过传入实参$event获取, 如果函数调用时无参, 触发函数的第一个形参就是事件对象.
+                changeColor(e){
+                    this.divBgc.backgroundColor = "blue";
+                },
+                changeColor1() {
+                    this.isBgc = true;
+                },
+                parentClick() {
+                    alert("父级事件触发");
+                },
+                childClick(){
+                    alert("子级事件触发");
+                },
+                downAction() {
+                    console.log("键盘触发!");
+                }
+            }
+        });
+    </script>
+</body>
+</html>
